@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZCode — Apple-style</title>
+<style>
+:root{
+  --bg:#f5f5f7; --panel:#ffffff; --text:#1d1d1f; --muted:#6e6e73;
+  --line:rgba(0,0,0,.08); --accent:#0071e3; --accent-soft:rgba(0,113,227,.10);
+  --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+.topbar{display:flex;align-items:center;gap:16px;padding:14px 22px;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.02em}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,#0a84ff,#5e5ce6);display:grid;place-items:center;color:#fff;font-weight:800}
+.nav{display:flex;gap:6px;margin-left:18px}
+.nav button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.nav button:hover{background:rgba(0,0,0,.05);color:var(--text)}
+.nav button.active{background:var(--text);color:#fff}
+.actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{border:0;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:rgba(0,0,0,.05);color:var(--text)}
+.btn.ghost:hover{background:rgba(0,0,0,.09)}
+.main{display:grid;grid-template-columns:280px 1fr 320px;gap:16px;padding:16px;min-height:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.sidebar,.inspector{display:flex;flex-direction:column;min-height:0}
+.panel-title{padding:18px 20px 10px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.list{padding:0 10px 14px;overflow:auto}
+.item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;cursor:pointer;transition:.15s}
+.item:hover{background:rgba(0,0,0,.04)}
+.item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.icon{width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.06);display:grid;place-items:center;font-size:13px}
+.canvas-wrap{position:relative;min-height:0;display:flex;flex-direction:column}
+.canvas{flex:1;margin:16px;border-radius:14px;background:
+ linear-gradient(45deg,#e9e9ed 25%,transparent 25%,transparent 75%,#e9e9ed 75%),
+ linear-gradient(45deg,#e9e9ed 25%,transparent 25%,transparent 75%,#e9e9ed 75%);
+ background-size:24px 24px;background-position:0 0,12px 12px;background-color:#fff;border:1px solid var(--line)}
+.canvas-label{position:absolute;top:30px;left:34px;font-size:12px;color:var(--muted)}
+.inspector .field{padding:0 20px 14px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;background:#fff;color:var(--text);outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.statusbar{display:flex;align-items:center;gap:18px;padding:10px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);background:rgba(255,255,255,.72)}
+.dot{width:8px;height:8px;border-radius:50%;background:#30d158;display:inline-block;margin-right:6px}
+@media(max-width:1100px){.main{grid-template-columns:1fr}.sidebar,.inspector{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">Z</div>ZCode</div>
+    <nav class="nav">
+      <button class="active">Проект</button><button>2D</button><button>3D</button><button>Экспорт</button>
+    </nav>
+    <div class="actions">
+      <button class="btn ghost">Импорт .zc</button>
+      <button class="btn primary">Сохранить</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <aside class="card sidebar">
+      <div class="panel-title">Проект</div>
+      <div class="list">
+        <div class="item active"><div class="icon">📄</div>Главная сцена</div>
+        <div class="item"><div class="icon">🧩</div>Компоненты</div>
+        <div class="item"><div class="icon">🎨</div>Материалы</div>
+        <div class="item"><div class="icon">🎬</div>Анимации</div>
+        <div class="item"><div class="icon">⚙️</div>Настройки</div>
+      </div>
+    </aside>
+
+    <section class="card canvas-wrap">
+      <div class="canvas-label">Сцена · 2D / 3D</div>
+      <div class="canvas"></div>
+    </section>
+
+    <aside class="card inspector">
+      <div class="panel-title">Свойства</div>
+      <div class="field"><label>Название</label><input value="Новый объект"></div>
+      <div class="field row">
+        <div><label>X</label><input value="0"></div>
+        <div><label>Y</label><input value="0"></div>
+      </div>
+      <div class="field row">
+        <div><label>Z</label><input value="0"></div>
+        <div><label>Масштаб</label><input value="1.00"></div>
+      </div>
+      <div class="field"><label>Цвет</label><input type="color" value="#0071e3"></div>
+      <div class="field"><label>Материал</label><select><option>Стандартный</option><option>Металл</option><option>Стекло</option></select></div>
+    </aside>
+  </main>
+
+  <footer class="statusbar">
+    <span><span class="dot"></span>Готово</span>
+    <span>Объектов: 1</span>
+    <span>Масштаб: 100%</span>
+    <span style="margin-left:auto">ZCode · Apple-style UI</span>
+  </footer>
+</div>
+</body>
+</html>
