@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZCode Player — открыть файл .zc</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap">
+<style>
+:root{--bg:#f2f2f7;--ink:#1d1d1f;--card:#fff;--mute:#6e6e73;--grid:rgba(60,60,67,.16);--pen:#d93f2f;--runfg:#fff;--ring:rgba(0,0,0,.06);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--ink:#f5f5f7;--card:#1c1c1e;--mute:#98989d;--grid:#38383a;--pen:#ff6b57;--runfg:#14171f;--ring:rgba(255,255,255,.08);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--ink:#f5f5f7;--card:#1c1c1e;--mute:#98989d;--grid:#38383a;--pen:#ff6b57;--runfg:#14171f;--ring:rgba(255,255,255,.08);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+.hd{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.logo{width:52px;height:52px;flex:none;border-radius:14px;background:var(--pen);color:var(--runfg);display:grid;place-items:center}
+.logo svg{width:36px;height:36px}
+h1{font:700 2rem/1.05 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;letter-spacing:-.03em;margin:0}
+h1 span{color:var(--pen)}
+.sub{margin:2px 0 0;color:var(--mute);font-size:.95rem;overflow-wrap:anywhere}
+.drop{background:var(--card);border:2px dashed var(--grid);border-radius:20px;padding:28px 22px;text-align:center}
+.big{font:700 1.5rem/1.2 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;letter-spacing:-.02em;margin-bottom:8px}
+.drop p{color:var(--mute);margin:0 0 18px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+button,.btn{font:inherit;min-height:48px;padding:0 20px;border:0;border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 0 0 1px var(--ring);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation}
+.run{background:var(--pen);color:var(--runfg);font-weight:600;border-radius:980px;box-shadow:none}
+:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+.stage{position:relative;width:100%;aspect-ratio:3/2;border-radius:20px;overflow:hidden;background:#10151f;touch-action:none;box-shadow:0 0 0 1px var(--ring),0 8px 24px rgba(0,0,0,.18)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.pad button{min-height:50px;font-size:1.05rem;border-radius:16px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pad button:active{background:var(--pen);color:var(--runfg)}
+.pad button[data-k="пробел"]{grid-column:1/-1}
+.tools{margin-top:12px;justify-content:flex-start}
+pre{margin:12px 0 0;padding:14px 16px;background:var(--card);color:var(--ink);border-radius:16px;box-shadow:0 0 0 1px var(--ring);font:14px/1.5 "PT Mono",ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+pre.bad{color:#ff3b30}
+#out:empty{display:none}
+#code{white-space:pre;overflow-x:auto}
+#wmsg{color:var(--pen);min-height:1.4em;margin:14px 0 0;text-align:center}
+body.over .drop,body.over .stage{outline:3px dashed var(--pen);outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+<header class="hd"><div class="logo" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18h26L14 46h26"/><rect x="46" y="34" width="5" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg></div><div><h1>Z<span>Code</span> Player</h1><p class="sub" id="fname">Открывалка файлов .zc</p></div></header>
+<section class="drop" id="welcome">
+<div class="big">Откройте файл .zc</div>
+<p>Перетащите файл сюда или выберите его на устройстве. Программа запустится сразу.</p>
+<div class="row"><label class="btn run" for="file">Открыть файл</label><button id="demo">Демо: Flappy Bird</button></div>
+<p id="wmsg" role="status"></p>
+</section>
+<input type="file" id="file" accept=".zc,.txt,text/plain" hidden>
+<section id="play" hidden>
+<div class="stage" id="stage"><canvas id="c2" width="480" height="320"></canvas><canvas id="c3" width="480" height="320" hidden></canvas></div>
+<div class="pad"><button data-k="влево">◀</button><button data-k="вверх">▲</button><button data-k="вниз">▼</button><button data-k="вправо">▶</button><button data-k="пробел">Пробел</button></div>
+<div class="row tools"><button class="run" id="again">Перезапустить</button><button id="showcode">Код</button><label class="btn" for="file">Другой файл</label></div>
+<pre id="out" aria-live="polite"></pre>
+<pre id="code" hidden></pre>
+</section>
+<textarea id="src" hidden></textarea><textarea id="ans" hidden></textarea>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),src=$("src"),out=$("out");
+const ID="[\\wа-яёА-ЯЁ]+", B="(?<![\\wа-яёА-ЯЁ])", A="(?![\\wа-яёА-ЯЁ])";
+const WORDS=[["пусть","let"],["вернуть","return"],["иначе","else"],["истина","true"],["ложь","false"],["ничего","null"],["или","||"],["и","&&"],["не","!"],["прервать","break"],["продолжить","continue"],["константа","const"]]
+  .map(([r,j])=>[new RegExp(B+r+A,"g"),j]);
+const RULES=[
+ [/^(\s*)\}\s*иначе\s+если\s+(.+?)\s*\{\s*$/,"$1} else if($2){"],
+ [/^(\s*)скажи(?=[\s(])\s*(.+)$/,"$1__say($2);"],
+ [/^(\s*)повтори\s+(.+?)\s+раз[а]?\s*\{\s*$/,"$1for(let __i=0,__n=($2);__i<__n;__i++){__t();"],
+ [new RegExp("^(\\s*)для\\s+("+ID+")\\s+от\\s+(.+?)\\s+до\\s+(.+?)\\s*\\{\\s*$"),"$1for(let $2=$3,__e=($4);$2<=__e;$2++){__t();"],
+ [/^(\s*)пока\s+(.+?)\s*\{\s*$/,"$1while(__t()&&($2)){"],
+ [/^(\s*)каждый\s+кадр\s*\{\s*$/,"$1__f=function(){"],
+ [new RegExp("^(\\s*)для\\s+каждого\\s+("+ID+")\\s+в\\s+(.+?)\\s*\\{\\s*$"),"$1for(const $2 of ($3)){__t();"],
+ [/^(\s*)если\s+(.+?)\s*\{\s*$/,"$1if($2){"],
+ [new RegExp("^(\\s*)функция\\s+("+ID+")\\s*\\((.*)\\)\\s*\\{\\s*$"),"$1function $2($3){"]
+];
+function ln_(s,n){return /^\s*(?:let |const |__say\(|for\(|while\(|if\(|return\b|break|continue|__f=|[\wа-яёА-ЯЁ_.\[\]]+\s*(?:[-+*\/%]?=(?!=)|\())/.test(s)?s.replace(/^(\s*)/,"$1__ln("+n+");"):s}
+function tr(line){
+  line=line.replace(/^(\s*(?:\}\s*иначе\s+)?(?:если|пока)\s+)(.+?)(\s*\{\s*)$/,(_,a,c,b)=>a+c.replace(/(?<![=!<>])=(?![=>])/g,"==")+b);
+  for(const [re,to] of RULES){ if(re.test(line)){ line=line.replace(re,to); break } }
+  for(const [re,j] of WORDS) line=line.replace(re,j);
+  return line;
+}
+function compile(code){
+  const strs=[];
+  return code.split("\n").map((line,idx)=>{
+    line=line.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,s=>"\u0001"+(strs.push(s)-1)+"\u0001").replace(/#.*$/,"");
+    const m=line.match(/^(\s*(?:если|пока|повтори|для|функция)[^{]*)\{([^{}]+)\}\s*$/);
+    return ln_((m?[m[1]+"{",m[2],"}"]:[line]).map(tr).join(" "),idx+1);
+  }).join("\n").replace(/\u0001(\d+)\u0001/g,(_,i)=>strs[i]);
+}
+const LIB={длина:x=>x.length,случайное:n=>Math.floor(Math.random()*n)+1,корень:Math.sqrt,округлить:Math.round,текст:String,число:Number,макс:Math.max,мин:Math.min};
+const stage=$("stage"),c2=$("c2"),c3=$("c3"),g=c2.getContext("2d"),K=new Set(),P={x:0,y:0,нажата:false};
+let mode3=false,R,S,C,T0=0,AC;
+const COL={красный:"#e5484d",зелёный:"#30a46c",синий:"#3e63dd",жёлтый:"#f5d90a",белый:"#ffffff",чёрный:"#000000",оранжевый:"#f76b15",фиолетовый:"#8e4ec6",серый:"#889096",розовый:"#e93d82"};
+const col=c=>COL[c]||c;
+const KM={ArrowLeft:"влево",ArrowRight:"вправо",ArrowUp:"вверх",ArrowDown:"вниз",Space:"пробел",Enter:"ввод",KeyW:"w",KeyA:"a",KeyS:"s",KeyD:"d"};
+addEventListener("keydown",e=>{if(/TEXTAREA|SELECT/.test(e.target.tagName))return;const k=KM[e.code];if(k){K.add(k);e.preventDefault()}});
+addEventListener("keyup",e=>K.delete(KM[e.code]));
+document.querySelectorAll(".pad button").forEach(b=>{const k=b.dataset.k;b.onpointerdown=e=>{e.preventDefault();K.add(k)};["pointerup","pointerleave","pointercancel"].forEach(t=>b.addEventListener(t,()=>K.delete(k)))});
+const mv=e=>{const r=stage.getBoundingClientRect();P.x=(e.clientX-r.left)*480/r.width;P.y=(e.clientY-r.top)*320/r.height};
+stage.onpointermove=mv;stage.onpointerdown=e=>{mv(e);P.нажата=true};addEventListener("pointerup",()=>{P.нажата=false});
+function resetStage(){K.clear();mode3=false;S=C=null;c3.hidden=true;c2.hidden=false;T0=performance.now();g.fillStyle="#10151f";g.fillRect(0,0,480,320)}
+function M(geo,x,y,z,c){
+  if(!S)throw Error("Сначала вызовите начать3д()");
+  const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:col(c)}));m.position.set(x,y,z);S.add(m);
+  const o={убрать:()=>S.remove(m)};
+  [["x","position","x"],["y","position","y"],["z","position","z"],["поворот_x","rotation","x"],["поворот_y","rotation","y"],["поворот_z","rotation","z"]].forEach(([n,p,a])=>Object.defineProperty(o,n,{get:()=>m[p][a],set:v=>{m[p][a]=v}}));
+  return o}
+const G={ширина:480,высота:320,пи:Math.PI,синус:Math.sin,косинус:Math.cos,пол:Math.floor,абс:Math.abs,
+ добавить:(a,x)=>a.push(x),удалить_первый:a=>a.shift(),убрать_последний:a=>a.pop(),
+ время:()=>(performance.now()-T0)/1000,спросить:q=>{let a=ANS.length?ANS.shift():prompt(q);if(a==null)a="";out.textContent=(out.textContent+q+" "+a+"\n").slice(-3000);return a},нажата:k=>K.has(k),мышь:()=>P,
+ фон:c=>{g.fillStyle=col(c);g.fillRect(0,0,480,320)},
+ прямоугольник:(x,y,w,h,c)=>{g.fillStyle=col(c);g.fillRect(x,y,w,h)},
+ круг:(x,y,r,c)=>{g.fillStyle=col(c);g.beginPath();g.arc(x,y,r,0,7);g.fill()},
+ линия:(a,b,x,y,c,t=2)=>{g.strokeStyle=col(c);g.lineWidth=t;g.beginPath();g.moveTo(a,b);g.lineTo(x,y);g.stroke()},
+ надпись:(t,x,y,c="белый",s=16)=>{g.fillStyle=col(c);g.font=s+'px "PT Mono",monospace';g.fillText(show(t),x,y)},
+ звук:(f,d=0.1)=>{AC=AC||new AudioContext();const o=AC.createOscillator(),v=AC.createGain();o.type="square";o.frequency.value=f;v.gain.value=0.05;o.connect(v);v.connect(AC.destination);o.start();o.stop(AC.currentTime+d)},
+ начать3д:(c="#0d1424")=>{if(typeof THREE==="undefined")throw Error("Не загрузилась библиотека 3D");R=R||new THREE.WebGLRenderer({canvas:c3,antialias:true});R.setSize(480,320,false);S=new THREE.Scene();S.background=new THREE.Color(col(c));C=new THREE.PerspectiveCamera(60,1.5,0.1,200);C.position.set(0,3,8);S.add(new THREE.AmbientLight(0xffffff,0.6));const d=new THREE.DirectionalLight(0xffffff,0.8);d.position.set(3,8,5);S.add(d);mode3=true;c2.hidden=true;c3.hidden=false},
+ камера:(x,y,z,a,b,c)=>{if(!C)throw Error("Сначала вызовите начать3д()");C.position.set(x,y,z);C.lookAt(a,b,c)},
+ куб:(x,y,z,s,c)=>M(new THREE.BoxGeometry(s,s,s),x,y,z,c),
+ коробка:(x,y,z,w,h,d,c)=>M(new THREE.BoxGeometry(w,h,d),x,y,z,c),
+ сфера:(x,y,z,r,c)=>M(new THREE.SphereGeometry(r,24,16),x,y,z,c)};
+Object.assign(LIB,G);
+const show=v=>v===true?"истина":v===false?"ложь":v==null?"ничего":typeof v==="object"?JSON.stringify(v):String(v);
+let steps=0,raf=0,curLine=0,ANS=[];
+function ruErr(m){let r;
+  if(r=/^(.+) is not defined$/.exec(m))return "неизвестное имя «"+r[1]+"». Проверьте написание или создайте его через «пусть».";
+  if(/constant/.test(m))return "константу нельзя изменить.";
+  if(/is not a function/.test(m))return "это имя не является функцией ("+m+").";
+  if(/^(Unexpected|Invalid|Missing|missing)/.test(m))return "в записи программы есть ошибка. Проверьте скобки { }, запятые и кавычки ("+m+").";
+  return m}
+function fail(e,line,msg){out.className="bad";const n=line??curLine;out.textContent+="Ошибка"+(n?" в строке "+n:"")+": "+(msg||ruErr(e.message))}
+function run(){
+  cancelAnimationFrame(raf);resetStage();
+  out.textContent="";out.className="";
+  steps=0;
+  const say=(...a)=>{out.textContent=out.textContent.slice(-3000)+a.map(show).join(" ")+"\n"};
+  const tick=()=>{if(++steps>200000)throw new Error("Слишком много шагов — похоже на бесконечный цикл.");return true};
+  try{
+    curLine=0;ANS=$("ans").value.split("\n").filter(Boolean);
+    const bad=check(src.value);if(bad){fail(null,bad.line,bad.msg);return}
+    const js=compile(src.value);let fn;
+    try{fn=new Function("__say","__t","__ln",...Object.keys(LIB),"let __f;\n"+js+"\n;return __f")}catch(e){fail(e,findSyntax(js));return}
+    const f=fn(say,tick,n=>{curLine=n},...Object.values(LIB));
+    if(f){const step=()=>{raf=requestAnimationFrame(step);steps=0;try{f();if(mode3)R.render(S,C)}catch(e){cancelAnimationFrame(raf);fail(e)}};raf=requestAnimationFrame(step)}
+  }catch(e){fail(e)}
+}
+
+function check(code){const st=[],L=code.split("\n"),op={")":"(","]":"[","}":"{"};
+  for(let i=0;i<L.length;i++){const l=L[i].replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,"0").replace(/#.*$/,"");
+    if(/["']/.test(l))return{line:i+1,msg:"не закрыта кавычка"};
+    for(const ch of l){if("{([".includes(ch))st.push([ch,i+1]);else if(op[ch]){const o=st.pop();
+      if(!o)return{line:i+1,msg:"лишняя «"+ch+"» — у неё нет пары"};
+      if(o[0]!==op[ch])return{line:i+1,msg:"«"+ch+"» не подходит к «"+o[0]+"» из строки "+o[1]}}}}
+  if(st.length){const o=st[st.length-1];return{line:o[1],msg:"не закрыта «"+o[0]+"»"}}return null}
+function findSyntax(js){const L=js.split("\n");for(let i=0;i<L.length;i++){const t=L[i].replace(/^(\s*)__ln\(\d+\);/,"$1").trim();
+  if(!t||/^\}|\{$|^(else|break|continue)/.test(t))continue;try{new Function(t)}catch(e){return i+1}}return 0}
+
+const DEMO="# Flappy Bird на ZCode\n# Пробел, стрелка вверх или касание экрана — взмах\n\nконстанта гравитация = 0.38\nконстанта взмах = -6.4\nконстанта зазор = 110\nконстанта скорость_труб = 2.6\nконстанта земля = 292\n\nпусть птица_x = 110\nпусть птица_y = 160\nпусть скорость = 0\nпусть трубы = []\nпусть кадры = 0\nпусть счёт = 0\nпусть рекорд = 0\nпусть состояние = \"ждём\"\nпусть было = ложь\n\nфункция сброс() {\n  птица_y = 160\n  скорость = 0\n  трубы = []\n  кадры = 0\n  счёт = 0\n  состояние = \"ждём\"\n}\n\nфункция конец() {\n  если состояние != \"конец\" {\n    состояние = \"конец\"\n    звук(140, 0.35)\n    если счёт > рекорд {\n      рекорд = счёт\n    }\n  }\n}\n\nфункция по_центру(строка, у, размер, цвет) {\n  надпись(строка, 240 - длина(строка) * размер * 0.3, у, цвет, размер)\n}\n\nфункция труба(х, у) {\n  пусть верх = у - зазор / 2\n  пусть низ = у + зазор / 2\n  прямоугольник(х, 0, 52, верх, \"#4cae3c\")\n  прямоугольник(х - 3, верх - 18, 58, 18, \"#3a8f2d\")\n  прямоугольник(х, низ, 52, земля - низ, \"#4cae3c\")\n  прямоугольник(х - 3, низ, 58, 18, \"#3a8f2d\")\n}\n\nкаждый кадр {\n  пусть жми = нажата(\"пробел\") или нажата(\"вверх\") или мышь().нажата\n  если жми и не было {\n    если состояние == \"конец\" {\n      сброс()\n    } иначе {\n      состояние = \"игра\"\n      скорость = взмах\n      звук(520, 0.07)\n    }\n  }\n  было = жми\n\n  если состояние == \"ждём\" {\n    птица_y = 160 + синус(время() * 5) * 8\n  }\n  если состояние == \"игра\" {\n    кадры = кадры + 1\n    скорость = скорость + гравитация\n    птица_y = птица_y + скорость\n    если кадры % 85 == 1 {\n      добавить(трубы, {x: 500, y: случайное(130) + 80, з: ложь})\n    }\n    для каждого т в трубы {\n      т.x = т.x - скорость_труб\n      если не т.з и т.x + 52 < птица_x {\n        т.з = истина\n        счёт = счёт + 1\n        звук(880, 0.08)\n      }\n      если птица_x + 14 > т.x и птица_x - 14 < т.x + 52 {\n        если птица_y - 14 < т.y - зазор / 2 или птица_y + 14 > т.y + зазор / 2 {\n          конец()\n        }\n      }\n    }\n    если длина(трубы) > 0 и трубы[0].x < -70 {\n      удалить_первый(трубы)\n    }\n    если птица_y + 14 > земля {\n      птица_y = земля - 14\n      конец()\n    }\n    если птица_y < 14 {\n      птица_y = 14\n      скорость = 0\n    }\n  }\n\n  фон(\"#70c5ce\")\n  пусть сдвиг = (время() * 20) % 560\n  круг(540 - сдвиг, 60, 22, \"белый\")\n  круг(562 - сдвиг, 66, 18, \"белый\")\n  круг(518 - сдвиг, 68, 16, \"белый\")\n  для каждого т в трубы {\n    труба(т.x, т.y)\n  }\n  прямоугольник(0, земля, 480, 320 - земля, \"#ded895\")\n  прямоугольник(0, земля, 480, 6, \"#73bf2e\")\n  пусть полоса = (кадры * скорость_труб) % 24\n  для к от 0 до 20 {\n    прямоугольник(к * 24 - полоса, земля + 6, 12, 6, \"#c9c27a\")\n  }\n\n  круг(птица_x, птица_y, 15, \"жёлтый\")\n  круг(птица_x - 6, птица_y + 3 + синус(время() * 18) * 3, 7, \"#e8b800\")\n  круг(птица_x + 6, птица_y - 5, 5, \"белый\")\n  круг(птица_x + 8, птица_y - 5, 2, \"чёрный\")\n  прямоугольник(птица_x + 10, птица_y + 1, 12, 6, \"оранжевый\")\n\n  по_центру(текст(счёт), 66, 44, \"чёрный\")\n  по_центру(текст(счёт), 64, 44, \"белый\")\n  если состояние == \"ждём\" {\n    по_центру(\"Нажмите пробел\", 230, 22, \"белый\")\n  }\n  если состояние == \"конец\" {\n    по_центру(\"Конец игры\", 135, 32, \"белый\")\n    по_центру(\"Рекорд: \" + рекорд, 170, 20, \"белый\")\n    по_центру(\"Пробел — играть снова\", 205, 18, \"белый\")\n  }\n}";
+function openCode(code,name){code=code.replace(/^\uFEFF/,"");src.value=code;$("fname").textContent=name;$("welcome").hidden=true;$("play").hidden=false;$("code").textContent=code;if(document.activeElement)document.activeElement.blur();run()}
+function readFile(f){const m=$("wmsg");m.textContent="";if(!f)return;
+  if(f.size>1e6){m.textContent="Файл слишком большой: больше 1 МБ.";return}
+  f.text().then(t=>{if(!t.trim()){m.textContent="Файл пустой.";return}openCode(t,f.name)}).catch(()=>{m.textContent="Не удалось прочитать файл."})}
+$("file").onchange=e=>{readFile(e.target.files[0]);e.target.value=""};
+$("demo").onclick=()=>openCode(DEMO,"flappy-bird.zc (демо)");
+$("again").onclick=()=>{run();$("again").blur()};
+$("showcode").onclick=()=>{const c=$("code");c.hidden=!c.hidden;$("showcode").textContent=c.hidden?"Код":"Скрыть код";$("showcode").blur()};
+addEventListener("dragover",e=>{e.preventDefault();document.body.classList.add("over")});
+addEventListener("dragleave",e=>{if(!e.relatedTarget)document.body.classList.remove("over")});
+addEventListener("drop",e=>{e.preventDefault();document.body.classList.remove("over");readFile(e.dataTransfer.files[0])});
+</script>
+</body>
+</html>
