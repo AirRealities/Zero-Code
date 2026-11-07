@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZCode — язык программирования на русском</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Mono&family=PT+Serif:wght@400;700&display=swap">
+<style>
+:root{--bg:#eef3f7;--ink:#1b2a4a;--grid:#c9d6e4;--pen:#c8312b;--card:#fbfdff;--mute:#5d6f8c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12171f;--ink:#dce6f2;--grid:#243040;--pen:#ff7a6b;--card:#171e29;--mute:#8da0ba;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12171f;--ink:#dce6f2;--grid:#243040;--pen:#ff7a6b;--card:#171e29;--mute:#8da0ba;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "PT Serif",Georgia,serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:2.2rem;margin:0 0 4px;letter-spacing:-.01em}
+h1 span{color:var(--pen)}
+p.lead{margin:0 0 18px;color:var(--mute)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+select,button{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--ink);border-radius:6px;padding:8px 12px}
+button.run{background:var(--pen);border-color:var(--pen);color:#fff;font-weight:700;cursor:pointer}
+:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+textarea,pre{font:15px/24px "PT Mono",ui-monospace,monospace;margin:0;width:100%;border:1.5px solid var(--ink);border-radius:6px;padding:12px;color:var(--ink);
+background-color:var(--card);background-image:repeating-linear-gradient(transparent 0 23px,var(--grid) 23px 24px);background-attachment:local}
+textarea{height:300px;resize:vertical;tab-size:2}
+h2{font-size:1.1rem;margin:20px 0 8px}
+.stage{position:relative;width:100%;max-width:640px;aspect-ratio:3/2;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:#10151f;touch-action:none}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.pad{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pad button{min-width:48px;touch-action:none;user-select:none;-webkit-user-select:none}
+pre{min-height:96px;white-space:pre-wrap;overflow-x:auto}
+pre.bad{color:var(--pen)}
+details{margin-top:20px}
+summary{cursor:pointer;font-weight:700}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;margin-top:8px;font-size:.95rem}
+td{border-bottom:1px solid var(--grid);padding:5px 14px 5px 0;vertical-align:top}
+td:first-child{font-family:"PT Mono",ui-monospace,monospace;white-space:nowrap}
+:root{--bg:#f5f3ee;--ink:#161a23;--card:#fff;--mute:#667085;--grid:#e2ded3;--pen:#d93f2f;--ed:#181c27;--ed2:#10131b;--runfg:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1016;--ink:#e8ebf2;--card:#161a23;--mute:#8b93a7;--grid:#262c3a;--pen:#ff6b57;--ed:#161a23;--ed2:#0a0c11;--runfg:#14171f}}
+:root[data-theme="dark"]{--bg:#0d1016;--ink:#e8ebf2;--card:#161a23;--mute:#8b93a7;--grid:#262c3a;--pen:#ff6b57;--ed:#161a23;--ed2:#0a0c11;--runfg:#14171f}
+body{font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;padding:24px 16px 56px}
+.hd{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.logo{width:48px;height:48px;flex:none;border-radius:14px;background:var(--pen);color:var(--runfg);display:grid;place-items:center;font:700 1.35rem "PT Serif",Georgia,serif;letter-spacing:-.02em}
+h1{font:700 2.1rem/1 "PT Serif",Georgia,serif;margin:0;letter-spacing:-.02em}
+p.lead{margin:0 0 20px;color:var(--mute);max-width:56ch}
+.bar{gap:10px;margin-bottom:12px}
+select,button{font:inherit;min-height:46px;border:1px solid var(--grid);border-radius:12px;background:var(--card);color:var(--ink);padding:0 14px}
+select{flex:1 1 140px;min-width:0;font-weight:600}
+button.run{border:0;background:var(--pen);color:var(--runfg);font-weight:700;padding:0 22px;cursor:pointer}
+button.run::before{content:"\25B6\00a0"}
+button.run:active{transform:translateY(1px)}
+textarea,pre{border-radius:12px;border:1px solid transparent;background-image:none;font:14.5px/22px "PT Mono",ui-monospace,monospace}
+textarea{background:var(--ed);color:#e6eaf2;caret-color:var(--pen);padding:16px;height:320px}
+pre{background:var(--ed2);color:#cfe3d6;padding:14px 16px;min-height:96px}
+pre.bad{color:#ff9a8a}
+h2{font:700 .72rem/1 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.14em;color:var(--mute);margin:26px 0 10px}
+.stage{border:0;border-radius:14px;box-shadow:0 10px 30px rgba(14,17,22,.28)}
+.pad{gap:8px;margin-top:12px}
+.pad button{flex:1 1 52px;min-height:50px;font-size:1.05rem}
+.pad button:active{background:var(--pen);color:var(--runfg);border-color:var(--pen)}
+details{background:var(--card);border:1px solid var(--grid);border-radius:14px;padding:14px 16px}
+td{border-bottom:1px solid var(--grid)}
+p.lead{font-size:.95rem}
+.win{background:var(--ed);border:1px solid var(--grid);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(14,17,22,.18)}
+.tb{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--ed2);border-bottom:1px solid rgba(255,255,255,.06)}
+.tb i{width:11px;height:11px;border-radius:50%;background:#ff6b57}
+.tb i:nth-child(2){background:#f5d98a}.tb i:nth-child(3){background:#9be3b0}
+.tb b{margin-left:8px;font:13px "PT Mono",ui-monospace,monospace;color:#8b93a7;font-weight:400}
+.ed{display:flex}
+.ln{flex:none;height:320px;padding:16px 10px 16px 14px;text-align:right;color:#4d5670;font:14.5px/22px "PT Mono",ui-monospace,monospace;white-space:pre;overflow:hidden;user-select:none;-webkit-user-select:none;border-right:1px solid rgba(255,255,255,.06)}
+.cw{position:relative;flex:1;min-width:0;height:320px}
+.cw textarea,.cw pre{position:absolute;inset:0;margin:0;width:100%;height:100%;min-height:0;padding:16px;border:0;border-radius:0;box-shadow:none;font:14.5px/22px "PT Mono",ui-monospace,monospace;white-space:pre;tab-size:2;background:transparent;resize:none}
+.cw pre{pointer-events:none;overflow:hidden;color:#e6eaf2}
+.cw textarea{overflow:auto;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--pen)}
+.cw textarea::selection{background:rgba(255,107,87,.35)}
+.cw i{font-style:normal}
+.cw .k{color:#ff8a7a}.cw .s{color:#9be3b0}.cw .n{color:#f5d98a}.cw .c{color:#7f8aa3}.cw .f{color:#8cc4ff}
+.stage{box-shadow:0 0 0 1px var(--grid),0 10px 30px rgba(14,17,22,.28)}
+.pad{display:grid;grid-template-columns:repeat(4,1fr)}
+.pad button[data-k="пробел"]{grid-column:1/-1}
+:root{--bg:#f2f2f7;--ink:#1d1d1f;--card:#fff;--mute:#6e6e73;--grid:rgba(60,60,67,.16);--pen:#0071e3;--runfg:#fff;--ed:#fff;--ed2:#f5f5f7;--cf:#1d1d1f;--k:#ad3da4;--s:#d12f1b;--n:#272ad8;--c:#707f8c;--f:#4b21b0;--lnc:#aeaeb2;--ring:rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--ink:#f5f5f7;--card:#1c1c1e;--mute:#98989d;--grid:#38383a;--pen:#0a84ff;--ed:#1c1c1e;--ed2:#2c2c2e;--cf:#f5f5f7;--k:#fc5fa3;--s:#fc6a5d;--n:#d0bf69;--c:#7f8c98;--f:#5dd8ff;--lnc:#636366;--ring:rgba(255,255,255,.08)}}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px}
+.logo{width:52px;height:52px;border-radius:14px;font:700 1.5rem -apple-system,"SF Pro Display",system-ui,sans-serif}
+h1{font:700 2.4rem/1.05 -apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",system-ui,sans-serif;letter-spacing:-.03em}
+p.lead{font-size:1rem;line-height:1.45}
+select,button{border:0;box-shadow:0 0 0 1px var(--ring);min-height:48px;border-radius:14px;font-size:1rem}
+select{font-weight:500}
+button.run{border-radius:980px;box-shadow:none;font-size:1.05rem;font-weight:600;padding:0 26px}
+button:active{opacity:.85}
+h2{font:600 .8rem/1 -apple-system,system-ui,sans-serif;letter-spacing:.04em;margin:28px 0 10px 4px}
+.win,details,.stage{border:0;border-radius:20px;box-shadow:0 0 0 1px var(--ring),0 8px 24px rgba(0,0,0,.08)}
+.tb{position:relative;padding:12px 16px;border-bottom:1px solid var(--grid)}
+.tb b{position:absolute;left:0;right:0;margin:0;text-align:center;font:600 .8rem -apple-system,system-ui,sans-serif;color:var(--mute);pointer-events:none}
+.ln{color:var(--lnc);border-right:1px solid var(--grid);font-size:16px;line-height:24px}
+.cw textarea,.cw pre{font-size:16px;line-height:24px}
+.cw pre{color:var(--cf)}
+.cw .k{color:var(--k)}.cw .s{color:var(--s)}.cw .n{color:var(--n)}.cw .c{color:var(--c)}.cw .f{color:var(--f)}
+.cw textarea::selection{background:color-mix(in srgb,var(--pen) 30%,transparent)}
+.pad button{border-radius:16px;background:var(--card);-webkit-touch-callout:none}
+.pad button:active{background:var(--pen);color:#fff}
+pre{background:var(--card);color:var(--ink);box-shadow:0 0 0 1px var(--ring);border-radius:16px}
+pre.bad{color:#ff3b30}
+details{padding:16px 20px}
+summary{font-weight:600}
+td{border-bottom:1px solid var(--grid)}
+:root{--pen:#d93f2f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pen:#ff6b57}}
+.logo svg{width:36px;height:36px}
+.lesson{background:var(--card);border-radius:20px;padding:16px 18px;margin:0 0 12px;box-shadow:0 0 0 1px var(--ring)}
+.lh{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.lh span{color:var(--mute);font-weight:500}
+.lesson p{margin:8px 0 0}
+.lesson .task{font-weight:600}
+.lb{display:flex;gap:8px;margin-top:12px}
+.lb .run{flex:1}
+#lchk::before{content:"\2713\00a0"}
+#lr{min-height:1.4em}
+#lr.ok{color:#30a46c}#lr.no{color:var(--pen)}
+.ansbox{margin-top:12px}
+#ans{display:block;width:100%;height:72px;margin-top:8px;padding:10px 12px;border:1px solid var(--grid);border-radius:12px;background:var(--card);color:var(--ink);font:16px/22px system-ui,sans-serif;resize:vertical}
+.bar{gap:8px}
+.bar select{flex:1 1 110px}
+.bar button{padding:0 14px}
+.bar button.run{padding:0 18px}
+.proj{margin:0 0 12px}
+.proj .pr{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+#psave::before{content:none}
+#pname{flex:1 1 140px;min-width:0;min-height:48px;padding:0 14px;border:1px solid var(--grid);border-radius:14px;background:var(--card);color:var(--ink);font:16px system-ui,sans-serif}
+#pmsg{margin:8px 0 0;min-height:1.3em;color:var(--mute);font-size:.95rem}
+#plist{list-style:none;margin:6px 0 0;padding:0}
+#plist li{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--grid)}
+#plist .nm{flex:1;min-width:0}
+#plist .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#plist .nm small{color:var(--mute)}
+#plist button{min-height:40px;padding:0 14px;font-size:.95rem}
+#plist button.sure{background:var(--pen);color:var(--runfg)}
+</style>
+</head>
+<body>
+<main>
+<header class="hd"><div class="logo" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18h26L14 46h26"/><rect x="46" y="34" width="5" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg></div><h1>Z<span>Code</span></h1></header>
+<p class="lead">Язык программирования, в котором всё пишется по-русски. На нём можно писать игры в 2D и 3D: выберите пример или напишите свою программу и нажмите «Запустить».</p>
+<div class="bar">
+<select id="ex" aria-label="Пример программы"></select>
+<button class="run" id="go">Запустить</button>
+<button id="lbtn">Уроки</button>
+</div>
+<section class="lesson" id="lesson" hidden><div class="lh"><b id="lt"></b><span id="lp"></span></div><p id="ls"></p><p class="task" id="lk"></p><div class="lb"><button id="lprev" aria-label="Предыдущий урок">←</button><button class="run" id="lchk">Проверить</button><button id="lnext" aria-label="Следующий урок">→</button></div><p id="lr" role="status"></p></section>
+<details class="proj" id="proj"><summary>Мои проекты <span id="pn"></span></summary>
+<div class="pr"><input id="pname" maxlength="40" placeholder="Название проекта" aria-label="Название проекта"><button class="run" id="psave">Сохранить</button><button id="pnew">Новый</button></div>
+<p id="pmsg" role="status"></p><ul id="plist"></ul></details>
+<div class="win"><div class="tb"><i></i><i></i><i></i><b>программа.zc</b></div>
+<div class="ed"><div class="ln" id="ln" aria-hidden="true"></div><div class="cw"><pre id="hl" aria-hidden="true"></pre><textarea id="src" wrap="off" spellcheck="false" aria-label="Код программы"></textarea></div></div></div>
+<h2>Игра</h2>
+<div class="stage" id="stage"><canvas id="c2" width="480" height="320"></canvas><canvas id="c3" width="480" height="320" hidden></canvas></div>
+<div class="pad"><button data-k="влево">◀</button><button data-k="вверх">▲</button><button data-k="вниз">▼</button><button data-k="вправо">▶</button><button data-k="пробел">Пробел</button></div>
+<h2>Вывод</h2>
+<pre id="out" aria-live="polite"></pre>
+<details class="ansbox"><summary>Ответы для «спросить»</summary><textarea id="ans" placeholder="Если окно запроса не появляется, впишите ответы сюда: по одному в строке"></textarea></details>
+<details>
+<summary>Справка по языку</summary>
+<div class="tbl"><table>
+<tr><td>пусть х = 5</td><td>создать переменную</td></tr>
+<tr><td>скажи х</td><td>вывести значение</td></tr>
+<tr><td>если … { } иначе { }</td><td>условие (также иначе если)</td></tr>
+<tr><td>пока … { }</td><td>цикл с условием</td></tr>
+<tr><td>повтори 3 раза { }</td><td>цикл с повтором</td></tr>
+<tr><td>для к от 1 до 5 { }</td><td>цикл со счётчиком</td></tr>
+<tr><td>функция имя(а, б) { }</td><td>функция; результат — вернуть</td></tr>
+<tr><td>и, или, не</td><td>логика; истина, ложь, ничего</td></tr>
+<tr><td># текст</td><td>комментарий</td></tr>
+<tr><td>каждый кадр { }</td><td>игровой цикл, около 60 раз в секунду</td></tr>
+<tr><td>нажата("влево"), мышь()</td><td>клавиши: влево, вправо, вверх, вниз, пробел, w, a, s, d</td></tr>
+<tr><td>фон, прямоугольник, круг, линия, надпись</td><td>рисование 2D; цвета: красный, зелёный, синий… или #hex</td></tr>
+<tr><td>начать3д, камера, куб, коробка, сфера</td><td>3D; у фигур есть x, y, z, поворот_x, поворот_y, поворот_z</td></tr>
+<tr><td>звук(440, 0.2), время()</td><td>звук и секунды с запуска</td></tr>
+<tr><td>для каждого с в список { }</td><td>обход списка; также добавить, прервать, продолжить, константа</td></tr>
+<tr><td>длина, случайное, корень, округлить, текст, число, макс, мин</td><td>встроенные функции</td></tr>
+</table></div>
+</details>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const EX={
+"Привет, мир":`# Первая программа
+пусть имя = "мир"
+скажи "Привет, " + имя + "!"
+повтори 3 раза {
+  скажи "Раз!"
+}`,
+"Числа Фибоначчи":`функция фиб(н) {
+  если н < 2 {
+    вернуть н
+  }
+  вернуть фиб(н - 1) + фиб(н - 2)
+}
+для к от 0 до 10 {
+  скажи "фиб(" + к + ") = " + фиб(к)
+}`,
+"ФизБаз":`для н от 1 до 15 {
+  если н % 15 == 0 {
+    скажи "ФизБаз"
+  } иначе если н % 3 == 0 {
+    скажи "Физ"
+  } иначе если н % 5 == 0 {
+    скажи "Баз"
+  } иначе {
+    скажи н
+  }
+}`,
+"Змейка (2D)":`# Стрелки или кнопки под экраном
+константа клетка = 20
+пусть змея = [{x: 5, y: 5}]
+пусть путь = {x: 1, y: 0}
+пусть еда = {x: 10, y: 6}
+пусть счёт = 0
+пусть кадры = 0
+каждый кадр {
+  кадры = кадры + 1
+  если нажата("влево") и путь.x == 0 {
+    путь = {x: -1, y: 0}
+  }
+  если нажата("вправо") и путь.x == 0 {
+    путь = {x: 1, y: 0}
+  }
+  если нажата("вверх") и путь.y == 0 {
+    путь = {x: 0, y: -1}
+  }
+  если нажата("вниз") и путь.y == 0 {
+    путь = {x: 0, y: 1}
+  }
+  если кадры % 8 == 0 {
+    пусть п = змея[длина(змея) - 1]
+    пусть голова = {x: (п.x + путь.x + 24) % 24, y: (п.y + путь.y + 16) % 16}
+    добавить(змея, голова)
+    если голова.x == еда.x и голова.y == еда.y {
+      счёт = счёт + 1
+      звук(660, 0.1)
+      еда = {x: случайное(24) - 1, y: случайное(16) - 1}
+    } иначе {
+      удалить_первый(змея)
+    }
+    для каждого с в змея {
+      если с != голова и с.x == голова.x и с.y == голова.y {
+        змея = [голова]
+        счёт = 0
+        звук(120, 0.3)
+      }
+    }
+  }
+  фон("#10151f")
+  прямоугольник(еда.x * клетка, еда.y * клетка, клетка - 2, клетка - 2, "красный")
+  для каждого с в змея {
+    прямоугольник(с.x * клетка, с.y * клетка, клетка - 2, клетка - 2, "зелёный")
+  }
+  надпись("Счёт: " + счёт, 8, 20, "белый", 16)
+}`,
+"Flappy Bird":`# Flappy Bird на ZCode
+# Пробел, стрелка вверх или касание экрана — взмах
+
+константа гравитация = 0.38
+константа взмах = -6.4
+константа зазор = 110
+константа скорость_труб = 2.6
+константа земля = 292
+
+пусть птица_x = 110
+пусть птица_y = 160
+пусть скорость = 0
+пусть трубы = []
+пусть кадры = 0
+пусть счёт = 0
+пусть рекорд = 0
+пусть состояние = "ждём"
+пусть было = ложь
+
+функция сброс() {
+  птица_y = 160
+  скорость = 0
+  трубы = []
+  кадры = 0
+  счёт = 0
+  состояние = "ждём"
+}
+
+функция конец() {
+  если состояние != "конец" {
+    состояние = "конец"
+    звук(140, 0.35)
+    если счёт > рекорд {
+      рекорд = счёт
+    }
+  }
+}
+
+функция по_центру(строка, у, размер, цвет) {
+  надпись(строка, 240 - длина(строка) * размер * 0.3, у, цвет, размер)
+}
+
+функция труба(х, у) {
+  пусть верх = у - зазор / 2
+  пусть низ = у + зазор / 2
+  прямоугольник(х, 0, 52, верх, "#4cae3c")
+  прямоугольник(х - 3, верх - 18, 58, 18, "#3a8f2d")
+  прямоугольник(х, низ, 52, земля - низ, "#4cae3c")
+  прямоугольник(х - 3, низ, 58, 18, "#3a8f2d")
+}
+
+каждый кадр {
+  пусть жми = нажата("пробел") или нажата("вверх") или мышь().нажата
+  если жми и не было {
+    если состояние == "конец" {
+      сброс()
+    } иначе {
+      состояние = "игра"
+      скорость = взмах
+      звук(520, 0.07)
+    }
+  }
+  было = жми
+
+  если состояние == "ждём" {
+    птица_y = 160 + синус(время() * 5) * 8
+  }
+  если состояние == "игра" {
+    кадры = кадры + 1
+    скорость = скорость + гравитация
+    птица_y = птица_y + скорость
+    если кадры % 85 == 1 {
+      добавить(трубы, {x: 500, y: случайное(130) + 80, з: ложь})
+    }
+    для каждого т в трубы {
+      т.x = т.x - скорость_труб
+      если не т.з и т.x + 52 < птица_x {
+        т.з = истина
+        счёт = счёт + 1
+        звук(880, 0.08)
+      }
+      если птица_x + 14 > т.x и птица_x - 14 < т.x + 52 {
+        если птица_y - 14 < т.y - зазор / 2 или птица_y + 14 > т.y + зазор / 2 {
+          конец()
+        }
+      }
+    }
+    если длина(трубы) > 0 и трубы[0].x < -70 {
+      удалить_первый(трубы)
+    }
+    если птица_y + 14 > земля {
+      птица_y = земля - 14
+      конец()
+    }
+    если птица_y < 14 {
+      птица_y = 14
+      скорость = 0
+    }
+  }
+
+  фон("#70c5ce")
+  пусть сдвиг = (время() * 20) % 560
+  круг(540 - сдвиг, 60, 22, "белый")
+  круг(562 - сдвиг, 66, 18, "белый")
+  круг(518 - сдвиг, 68, 16, "белый")
+  для каждого т в трубы {
+    труба(т.x, т.y)
+  }
+  прямоугольник(0, земля, 480, 320 - земля, "#ded895")
+  прямоугольник(0, земля, 480, 6, "#73bf2e")
+  пусть полоса = (кадры * скорость_труб) % 24
+  для к от 0 до 20 {
+    прямоугольник(к * 24 - полоса, земля + 6, 12, 6, "#c9c27a")
+  }
+
+  круг(птица_x, птица_y, 15, "жёлтый")
+  круг(птица_x - 6, птица_y + 3 + синус(время() * 18) * 3, 7, "#e8b800")
+  круг(птица_x + 6, птица_y - 5, 5, "белый")
+  круг(птица_x + 8, птица_y - 5, 2, "чёрный")
+  прямоугольник(птица_x + 10, птица_y + 1, 12, 6, "оранжевый")
+
+  по_центру(текст(счёт), 66, 44, "чёрный")
+  по_центру(текст(счёт), 64, 44, "белый")
+  если состояние == "ждём" {
+    по_центру("Нажмите пробел", 230, 22, "белый")
+  }
+  если состояние == "конец" {
+    по_центру("Конец игры", 135, 32, "белый")
+    по_центру("Рекорд: " + рекорд, 170, 20, "белый")
+    по_центру("Пробел — играть снова", 205, 18, "белый")
+  }
+}`,
+"3D-куб":`# Стрелки двигают куб
+начать3д("#0d1424")
+камера(0, 5, 10, 0, 0, 0)
+коробка(0, -1, 0, 12, 0.4, 12, "#35507a")
+пусть к = куб(0, 0.5, 0, 1.5, "оранжевый")
+пусть шар = сфера(3, 1, 0, 0.7, "розовый")
+каждый кадр {
+  к.поворот_y = к.поворот_y + 0.02
+  если нажата("влево") {
+    к.x = к.x - 0.1
+  }
+  если нажата("вправо") {
+    к.x = к.x + 0.1
+  }
+  если нажата("вверх") {
+    к.z = к.z - 0.1
+  }
+  если нажата("вниз") {
+    к.z = к.z + 0.1
+  }
+  шар.y = 1 + синус(время() * 3) * 0.5
+}`};
+const $=id=>document.getElementById(id), src=$("src"), out=$("out"), ex=$("ex");
+for(const k in EX){ex.add(new Option(k,k))}
+ex.value="Змейка (2D)";
+const load=()=>{src.value=EX[ex.value];paint();run()};
+ex.onchange=()=>{load();saveDraft();ex.blur()};
+$("go").onclick=()=>{run();$("go").blur()};
+src.onkeydown=e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();run()}};
+
+const ID="[\\wа-яёА-ЯЁ]+", B="(?<![\\wа-яёА-ЯЁ])", A="(?![\\wа-яёА-ЯЁ])";
+const WORDS=[["пусть","let"],["вернуть","return"],["иначе","else"],["истина","true"],["ложь","false"],["ничего","null"],["или","||"],["и","&&"],["не","!"],["прервать","break"],["продолжить","continue"],["константа","const"]]
+  .map(([r,j])=>[new RegExp(B+r+A,"g"),j]);
+const RULES=[
+ [/^(\s*)\}\s*иначе\s+если\s+(.+?)\s*\{\s*$/,"$1} else if($2){"],
+ [/^(\s*)скажи(?=[\s(])\s*(.+)$/,"$1__say($2);"],
+ [/^(\s*)повтори\s+(.+?)\s+раз[а]?\s*\{\s*$/,"$1for(let __i=0,__n=($2);__i<__n;__i++){__t();"],
+ [new RegExp("^(\\s*)для\\s+("+ID+")\\s+от\\s+(.+?)\\s+до\\s+(.+?)\\s*\\{\\s*$"),"$1for(let $2=$3,__e=($4);$2<=__e;$2++){__t();"],
+ [/^(\s*)пока\s+(.+?)\s*\{\s*$/,"$1while(__t()&&($2)){"],
+ [/^(\s*)каждый\s+кадр\s*\{\s*$/,"$1__f=function(){"],
+ [new RegExp("^(\\s*)для\\s+каждого\\s+("+ID+")\\s+в\\s+(.+?)\\s*\\{\\s*$"),"$1for(const $2 of ($3)){__t();"],
+ [/^(\s*)если\s+(.+?)\s*\{\s*$/,"$1if($2){"],
+ [new RegExp("^(\\s*)функция\\s+("+ID+")\\s*\\((.*)\\)\\s*\\{\\s*$"),"$1function $2($3){"]
+];
+function ln_(s,n){return /^\s*(?:let |const |__say\(|for\(|while\(|if\(|return\b|break|continue|__f=|[\wа-яёА-ЯЁ_.\[\]]+\s*(?:[-+*\/%]?=(?!=)|\())/.test(s)?s.replace(/^(\s*)/,"$1__ln("+n+");"):s}
+function tr(line){
+  line=line.replace(/^(\s*(?:\}\s*иначе\s+)?(?:если|пока)\s+)(.+?)(\s*\{\s*)$/,(_,a,c,b)=>a+c.replace(/(?<![=!<>])=(?![=>])/g,"==")+b);
+  for(const [re,to] of RULES){ if(re.test(line)){ line=line.replace(re,to); break } }
+  for(const [re,j] of WORDS) line=line.replace(re,j);
+  return line;
+}
+function compile(code){
+  const strs=[];
+  return code.split("\n").map((line,idx)=>{
+    line=line.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,s=>"\u0001"+(strs.push(s)-1)+"\u0001").replace(/#.*$/,"");
+    const m=line.match(/^(\s*(?:если|пока|повтори|для|функция)[^{]*)\{([^{}]+)\}\s*$/);
+    return ln_((m?[m[1]+"{",m[2],"}"]:[line]).map(tr).join(" "),idx+1);
+  }).join("\n").replace(/\u0001(\d+)\u0001/g,(_,i)=>strs[i]);
+}
+const LIB={длина:x=>x.length,случайное:n=>Math.floor(Math.random()*n)+1,корень:Math.sqrt,округлить:Math.round,текст:String,число:Number,макс:Math.max,мин:Math.min};
+const stage=$("stage"),c2=$("c2"),c3=$("c3"),g=c2.getContext("2d"),K=new Set(),P={x:0,y:0,нажата:false};
+let mode3=false,R,S,C,T0=0,AC;
+const COL={красный:"#e5484d",зелёный:"#30a46c",синий:"#3e63dd",жёлтый:"#f5d90a",белый:"#ffffff",чёрный:"#000000",оранжевый:"#f76b15",фиолетовый:"#8e4ec6",серый:"#889096",розовый:"#e93d82"};
+const col=c=>COL[c]||c;
+const KM={ArrowLeft:"влево",ArrowRight:"вправо",ArrowUp:"вверх",ArrowDown:"вниз",Space:"пробел",Enter:"ввод",KeyW:"w",KeyA:"a",KeyS:"s",KeyD:"d"};
+addEventListener("keydown",e=>{if(/TEXTAREA|SELECT/.test(e.target.tagName))return;const k=KM[e.code];if(k){K.add(k);e.preventDefault()}});
+addEventListener("keyup",e=>K.delete(KM[e.code]));
+document.querySelectorAll(".pad button").forEach(b=>{const k=b.dataset.k;b.onpointerdown=e=>{e.preventDefault();K.add(k)};["pointerup","pointerleave","pointercancel"].forEach(t=>b.addEventListener(t,()=>K.delete(k)))});
+const mv=e=>{const r=stage.getBoundingClientRect();P.x=(e.clientX-r.left)*480/r.width;P.y=(e.clientY-r.top)*320/r.height};
+stage.onpointermove=mv;stage.onpointerdown=e=>{mv(e);P.нажата=true};addEventListener("pointerup",()=>{P.нажата=false});
+function resetStage(){K.clear();mode3=false;S=C=null;c3.hidden=true;c2.hidden=false;T0=performance.now();g.fillStyle="#10151f";g.fillRect(0,0,480,320)}
+function M(geo,x,y,z,c){
+  if(!S)throw Error("Сначала вызовите начать3д()");
+  const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:col(c)}));m.position.set(x,y,z);S.add(m);
+  const o={убрать:()=>S.remove(m)};
+  [["x","position","x"],["y","position","y"],["z","position","z"],["поворот_x","rotation","x"],["поворот_y","rotation","y"],["поворот_z","rotation","z"]].forEach(([n,p,a])=>Object.defineProperty(o,n,{get:()=>m[p][a],set:v=>{m[p][a]=v}}));
+  return o}
+const G={ширина:480,высота:320,пи:Math.PI,синус:Math.sin,косинус:Math.cos,пол:Math.floor,абс:Math.abs,
+ добавить:(a,x)=>a.push(x),удалить_первый:a=>a.shift(),убрать_последний:a=>a.pop(),
+ время:()=>(performance.now()-T0)/1000,спросить:q=>{let a=ANS.length?ANS.shift():prompt(q);if(a==null)a="";out.textContent=(out.textContent+q+" "+a+"\n").slice(-3000);return a},нажата:k=>K.has(k),мышь:()=>P,
+ фон:c=>{g.fillStyle=col(c);g.fillRect(0,0,480,320)},
+ прямоугольник:(x,y,w,h,c)=>{g.fillStyle=col(c);g.fillRect(x,y,w,h)},
+ круг:(x,y,r,c)=>{g.fillStyle=col(c);g.beginPath();g.arc(x,y,r,0,7);g.fill()},
+ линия:(a,b,x,y,c,t=2)=>{g.strokeStyle=col(c);g.lineWidth=t;g.beginPath();g.moveTo(a,b);g.lineTo(x,y);g.stroke()},
+ надпись:(t,x,y,c="белый",s=16)=>{g.fillStyle=col(c);g.font=s+'px "PT Mono",monospace';g.fillText(show(t),x,y)},
+ звук:(f,d=0.1)=>{AC=AC||new AudioContext();const o=AC.createOscillator(),v=AC.createGain();o.type="square";o.frequency.value=f;v.gain.value=0.05;o.connect(v);v.connect(AC.destination);o.start();o.stop(AC.currentTime+d)},
+ начать3д:(c="#0d1424")=>{if(typeof THREE==="undefined")throw Error("Не загрузилась библиотека 3D");R=R||new THREE.WebGLRenderer({canvas:c3,antialias:true});R.setSize(480,320,false);S=new THREE.Scene();S.background=new THREE.Color(col(c));C=new THREE.PerspectiveCamera(60,1.5,0.1,200);C.position.set(0,3,8);S.add(new THREE.AmbientLight(0xffffff,0.6));const d=new THREE.DirectionalLight(0xffffff,0.8);d.position.set(3,8,5);S.add(d);mode3=true;c2.hidden=true;c3.hidden=false},
+ камера:(x,y,z,a,b,c)=>{if(!C)throw Error("Сначала вызовите начать3д()");C.position.set(x,y,z);C.lookAt(a,b,c)},
+ куб:(x,y,z,s,c)=>M(new THREE.BoxGeometry(s,s,s),x,y,z,c),
+ коробка:(x,y,z,w,h,d,c)=>M(new THREE.BoxGeometry(w,h,d),x,y,z,c),
+ сфера:(x,y,z,r,c)=>M(new THREE.SphereGeometry(r,24,16),x,y,z,c)};
+Object.assign(LIB,G);
+const show=v=>v===true?"истина":v===false?"ложь":v==null?"ничего":typeof v==="object"?JSON.stringify(v):String(v);
+let steps=0,raf=0,curLine=0,ANS=[];
+function ruErr(m){let r;
+  if(r=/^(.+) is not defined$/.exec(m))return "неизвестное имя «"+r[1]+"». Проверьте написание или создайте его через «пусть».";
+  if(/constant/.test(m))return "константу нельзя изменить.";
+  if(/is not a function/.test(m))return "это имя не является функцией ("+m+").";
+  if(/^(Unexpected|Invalid|Missing|missing)/.test(m))return "в записи программы есть ошибка. Проверьте скобки { }, запятые и кавычки ("+m+").";
+  return m}
+function fail(e,line,msg){out.className="bad";const n=line??curLine;out.textContent+="Ошибка"+(n?" в строке "+n:"")+": "+(msg||ruErr(e.message))}
+function run(){
+  cancelAnimationFrame(raf);resetStage();
+  out.textContent="";out.className="";
+  steps=0;
+  const say=(...a)=>{out.textContent=out.textContent.slice(-3000)+a.map(show).join(" ")+"\n"};
+  const tick=()=>{if(++steps>200000)throw new Error("Слишком много шагов — похоже на бесконечный цикл.");return true};
+  try{
+    curLine=0;ANS=$("ans").value.split("\n").filter(Boolean);
+    const bad=check(src.value);if(bad){fail(null,bad.line,bad.msg);return}
+    const js=compile(src.value);let fn;
+    try{fn=new Function("__say","__t","__ln",...Object.keys(LIB),"let __f;\n"+js+"\n;return __f")}catch(e){fail(e,findSyntax(js));return}
+    const f=fn(say,tick,n=>{curLine=n},...Object.values(LIB));
+    if(f){const step=()=>{raf=requestAnimationFrame(step);steps=0;try{f();if(mode3)R.render(S,C)}catch(e){cancelAnimationFrame(raf);fail(e)}};raf=requestAnimationFrame(step)}
+  }catch(e){fail(e)}
+}
+const KWS=new Set("пусть константа функция вернуть если иначе пока повтори раз раза для каждого от до в каждый кадр прервать продолжить скажи и или не истина ложь ничего".split(" "));
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function hlLine(l){let o="",p=0,m;const re=/#.*|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\d+(?:\.\d+)?|[\wа-яёА-ЯЁ]+/g;
+  while((m=re.exec(l))){const w=m[0],ch=w[0];o+=esc(l.slice(p,m.index));
+    const c=ch==="#"?"c":ch==='"'||ch==="'"?"s":/\d/.test(ch)?"n":KWS.has(w)?"k":Object.hasOwn(LIB,w)?"f":"";
+    o+=c?'<i class="'+c+'">'+esc(w)+"</i>":esc(w);p=re.lastIndex}
+  return o+esc(l.slice(p))}
+const hl=$("hl"),ln=$("ln");
+function sync(){hl.scrollTop=ln.scrollTop=src.scrollTop;hl.scrollLeft=src.scrollLeft}
+function paint(){const L=src.value.split("\n");hl.innerHTML=L.map(hlLine).join("\n")+"\n";ln.textContent=L.map((_,i)=>i+1).join("\n");sync()}
+src.addEventListener("input",paint);src.addEventListener("scroll",sync);
+function check(code){const st=[],L=code.split("\n"),op={")":"(","]":"[","}":"{"};
+  for(let i=0;i<L.length;i++){const l=L[i].replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,"0").replace(/#.*$/,"");
+    if(/["']/.test(l))return{line:i+1,msg:"не закрыта кавычка"};
+    for(const ch of l){if("{([".includes(ch))st.push([ch,i+1]);else if(op[ch]){const o=st.pop();
+      if(!o)return{line:i+1,msg:"лишняя «"+ch+"» — у неё нет пары"};
+      if(o[0]!==op[ch])return{line:i+1,msg:"«"+ch+"» не подходит к «"+o[0]+"» из строки "+o[1]}}}}
+  if(st.length){const o=st[st.length-1];return{line:o[1],msg:"не закрыта «"+o[0]+"»"}}return null}
+function findSyntax(js){const L=js.split("\n");for(let i=0;i<L.length;i++){const t=L[i].replace(/^(\s*)__ln\(\d+\);/,"$1").trim();
+  if(!t||/^\}|\{$|^(else|break|continue)/.test(t))continue;try{new Function(t)}catch(e){return i+1}}return 0}
+let esc1=false;
+function ins(t){if(!document.execCommand("insertText",false,t)){src.setRangeText(t,src.selectionStart,src.selectionEnd,"end");src.dispatchEvent(new Event("input"))}}
+src.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){esc1=true;return}
+  if(e.key==="Tab"&&!e.shiftKey&&!esc1){e.preventDefault();ins("  ")}
+  else if(e.key==="Enter"&&!e.ctrlKey&&!e.metaKey){const v=src.value,p=src.selectionStart,ls=p?v.lastIndexOf("\n",p-1)+1:0,ind=/^ */.exec(v.slice(ls,p))[0];e.preventDefault();ins("\n"+ind+(v[p-1]==="{"?"  ":""))}
+  esc1=false});
+const LS=[
+{t:"Первая команда",s:"Команда «скажи» выводит текст на экран. Текст пишут в двойных кавычках.",k:"выведите слово Привет.",c:"# Напишите команду «скажи» ниже\n",e:["Привет"],h:["скажи"]},
+{t:"Переменные",s:"Переменная хранит значение и создаётся командой «пусть». Строки склеиваются знаком +.",k:"выведите «Привет, Аня», взяв имя из переменной.",c:"пусть имя = \"Аня\"\n# Выведите: Привет, Аня\n",e:["Привет, Аня"],h:["имя"]},
+{t:"Числа",s:"Можно считать: + - * / и % (остаток). Скобки меняют порядок действий.",k:"выведите результат выражения (3 + 4) * 6.",c:"# Выведите (3 + 4) * 6\n",e:["42"],h:["скажи"]},
+{t:"Условия",s:"«если» выполняет блок, когда условие верно, а «иначе» — когда нет.",k:"если возраст меньше 18, выведите Дети, иначе — Взрослые.",c:"пусть возраст = 20\n# Допишите условие\n",e:["Взрослые"],h:["если","иначе"]},
+{t:"Повторы",s:"«повтори 3 раза { … }» повторяет блок нужное число раз.",k:"выведите слово Ура! три раза.",c:"# Используйте команду повтори\n",e:["Ура!","Ура!","Ура!"],h:["повтори"]},
+{t:"Цикл со счётчиком",s:"«для к от 1 до 5 { … }» перебирает числа, счётчик к меняется сам.",k:"выведите числа от 1 до 5, каждое на новой строке.",c:"# Используйте команду для\n",e:["1","2","3","4","5"],h:["для"]},
+{t:"Функции",s:"Функция — набор команд с именем. «вернуть» отдаёт результат.",k:"создайте функцию удвой(н), которая возвращает н * 2, и выведите удвой(21).",c:"# Создайте функцию удвой\n",e:["42"],h:["функция","вернуть"]},
+{t:"Первая игра",s:"Блок «каждый кадр» выполняется около 60 раз в секунду, в нём рисуют игру. Холст 480 на 320.",k:"нарисуйте круг в точке (х, 160) и заставьте его двигаться: каждый кадр прибавляйте к х по 2.",c:"пусть х = 40\nкаждый кадр {\n  фон(\"#10151f\")\n  # круг(х, 160, 30, \"оранжевый\")\n}",e:null,h:["каждый кадр","круг(","х ="]}];
+const done=new Set();let li=0,lessonOn=false;
+function showLesson(i){li=(i+LS.length)%LS.length;const l=LS[li];$("lt").textContent=l.t;$("lp").textContent=(li+1)+" / "+LS.length+(done.has(li)?" ✓":"");$("ls").textContent=l.s;$("lk").textContent="Задание: "+l.k;$("lr").textContent="";$("lr").className="";src.value=l.c;paint();run()}
+$("lbtn").onclick=()=>{lessonOn=!lessonOn;$("lesson").hidden=!lessonOn;ex.hidden=lessonOn;$("lbtn").textContent=lessonOn?"К примерам":"Уроки";lessonOn?showLesson(li):load();$("lbtn").blur()};
+$("lprev").onclick=()=>showLesson(li-1);$("lnext").onclick=()=>showLesson(li+1);
+$("lchk").onclick=()=>{const l=LS[li],r=$("lr");run();let ok=out.className!=="bad",why="В программе есть ошибка — исправьте её и проверьте снова.";
+  if(ok&&l.e){const want=l.e.join("\n"),got=out.textContent.trim();if(got!==want){ok=false;why="Программа вывела «"+got+"», а нужно «"+want+"»."}}
+  if(ok){const m=l.h.find(w=>!src.value.includes(w));if(m){ok=false;why="Используйте в программе «"+m+"»."}}
+  r.className=ok?"ok":"no";r.textContent=ok?"✓ Верно! Можно переходить к следующему уроку.":why;if(ok){done.add(li);$("lp").textContent=(li+1)+" / "+LS.length+" ✓"}};
+const PK="zcode.projects",DK="zcode.draft";
+function sget(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function sset(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function readP(){try{const a=JSON.parse(sget(PK)||"[]");return Array.isArray(a)?a.filter(p=>p&&typeof p.name==="string"&&typeof p.code==="string"):[]}catch(e){return[]}}
+const pmsg=t=>{$("pmsg").textContent=t};
+function drawP(){const ps=readP().sort((a,b)=>b.t-a.t),ul=$("plist");$("pn").textContent=ps.length?"· "+ps.length:"";ul.textContent="";
+  for(const p of ps){const li=document.createElement("li"),nm=document.createElement("div"),b=document.createElement("b"),s=document.createElement("small"),o=document.createElement("button"),d=document.createElement("button");
+    nm.className="nm";b.textContent=p.name;s.textContent=new Date(p.t).toLocaleDateString("ru-RU");nm.append(b,s);
+    o.textContent="Открыть";o.onclick=()=>{src.value=p.code;$("pname").value=p.name;paint();saveDraft();run();pmsg("Открыт «"+p.name+"»")};
+    d.textContent="Удалить";d.onclick=()=>{if(!d.classList.contains("sure")){d.classList.add("sure");d.textContent="Точно?";setTimeout(()=>{d.classList.remove("sure");d.textContent="Удалить"},3000);return}
+      sset(PK,JSON.stringify(readP().filter(x=>x.name!==p.name)));drawP();pmsg("Удалён «"+p.name+"»")};
+    li.append(nm,o,d);ul.append(li)}}
+$("psave").onclick=()=>{const name=$("pname").value.trim().slice(0,40)||"Без названия";$("pname").value=name;
+  const a=readP(),i=a.findIndex(x=>x.name===name),p={name,code:src.value,t:Date.now()};if(i<0)a.push(p);else a[i]=p;
+  pmsg(sset(PK,JSON.stringify(a))?(i<0?"Сохранено «":"Обновлено «")+name+"»":"Не удалось сохранить: хранилище браузера недоступно.");drawP()};
+$("pnew").onclick=()=>{src.value="# Новый проект\n";$("pname").value="";paint();saveDraft();run();pmsg("Новый проект")};
+let dt=0;function saveDraft(){clearTimeout(dt);sset(DK,src.value)}
+src.addEventListener("input",()=>{clearTimeout(dt);dt=setTimeout(()=>sset(DK,src.value),400)});
+drawP();
+const dr=sget(DK);
+if(location.hash!=="#lessons"&&dr&&dr.trim()){src.value=dr;paint();run()}else load();
+if(location.hash==="#lessons")$("lbtn").click();
+</script>
+</body>
+</html>
